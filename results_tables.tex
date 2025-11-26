@@ -12,10 +12,10 @@
 \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
 Variant & Time (s) & Success & Time (s) & Success & Time (s) & Success \\
 \midrule
-Base           & 12.73 & 100\% & 600.00$^*$ & 40\% & 690.79 & 50\% \\
-Watched        & \textbf{0.12} & \textbf{100\%} & 600.00$^*$ & 40\% & \textbf{451.55} & \textbf{50\%} \\
-Preprocessing  & 24.32 & 100\% & 600.00$^*$ & 40\% & 900.00$^*$ & 25\% \\
-Combined       & 24.69 & 100\% & 600.00$^*$ & 40\% & 900.00$^*$ & 25\% \\
+Base           & 11.99 & 100\% & 600.00$^*$ & 40\% & 640.67 & 50\% \\
+Watched        & \textbf{0.18} & \textbf{100\%} & 600.00$^*$ & 40\% & \textbf{451.52} & \textbf{50\%} \\
+Preprocessing  & 25.01 & 100\% & 600.00$^*$ & 40\% & 792.65 & 50\% \\
+Combined       & 23.35 & 100\% & 600.00$^*$ & 40\% & 754.73 & 50\% \\
 \bottomrule
 \end{tabular}
 \par
@@ -35,9 +35,9 @@ Comparison & 9$\times$9 & 16$\times$16 & 25$\times$25 \\
 \midrule
 Base vs. Watched           & $<$0.001$^{\dagger}$ & 0.89 & 0.31 \\
 Base vs. Preprocessing     & 0.002$^{\dagger}$ & 0.95 & 0.18 \\
-Base vs. Combined          & 0.001$^{\dagger}$ & 0.91 & 0.04$^{\dagger}$ \\
-Watched vs. Preprocessing  & $<$0.001$^{\dagger}$ & 0.87 & 0.22 \\
-Watched vs. Combined       & $<$0.001$^{\dagger}$ & 0.93 & 0.03$^{\dagger}$ \\
+Base vs. Combined          & 0.001$^{\dagger}$ & 0.91 & 0.22 \\
+Watched vs. Preprocessing  & $<$0.001$^{\dagger}$ & 0.87 & 0.09 \\
+Watched vs. Combined       & $<$0.001$^{\dagger}$ & 0.93 & 0.12 \\
 Preprocessing vs. Combined & 0.73 & 0.96 & 0.84 \\
 \bottomrule
 \end{tabular}
@@ -56,9 +56,9 @@ Preprocessing vs. Combined & 0.73 & 0.96 & 0.84 \\
 \cmidrule{2-4}
 Variant & 9$\times$9 & 16$\times$16 & 25$\times$25 \\
 \midrule
-Watched        & 106.08$\times$ & 1.00$\times$ & 1.53$\times$ \\
-Preprocessing  & 0.52$\times$ & 1.00$\times$ & 0.77$\times$ \\
-Combined       & 0.52$\times$ & 1.00$\times$ & 0.77$\times$ \\
+Watched        & 65.93$\times$ & 1.00$\times$ & 1.42$\times$ \\
+Preprocessing  & 0.48$\times$ & 1.00$\times$ & 0.81$\times$ \\
+Combined       & 0.51$\times$ & 1.00$\times$ & 0.85$\times$ \\
 \bottomrule
 \end{tabular}
 \par
@@ -76,8 +76,8 @@ Variant & Decisions & Backtracks & Unit Prop. & Conflicts \\
 \midrule
 Base           & 0 & 0 & 24.5 & 0 \\
 Watched        & 0 & 0 & 24.5 & 0 \\
-Preprocessing  & 0 & 0 & 22.5 & 0 \\
-Combined       & 0 & 0 & 22.5 & 0 \\
+Preprocessing  & 0 & 0 & 24.5 & 0 \\
+Combined       & 0 & 0 & 24.5 & 0 \\
 \bottomrule
 \end{tabular}
 \par
@@ -95,10 +95,10 @@ Combined       & 0 & 0 & 22.5 & 0 \\
 \cmidrule(lr){2-3}\cmidrule(lr){4-5}
 Variant & Median (s) & Mean (s) & Median (s) & Mean (s) \\
 \midrule
-Base           & 14.36 & 9.99  & 0.36 & 6.05 \\
-Watched        & 0.30  & 0.31  & 0.03 & 0.20 \\
-Preprocessing  & 26.89 & 18.76 & 0.41 & 11.54 \\
-Combined       & 27.05 & 19.13 & 0.43 & 11.73 \\
+Base           & 13.93 & 9.54  & 0.35 & 5.82 \\
+Watched        & 0.47  & 0.32  & 0.03 & 0.19 \\
+Preprocessing  & 26.85 & 19.03 & 0.40 & 11.68 \\
+Combined       & 27.06 & 18.70 & 0.42 & 11.48 \\
 \bottomrule
 \end{tabular}
 \par
