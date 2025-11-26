@@ -119,6 +119,16 @@ def get_timeout_for_size(size: int, config: ExperimentConfig) -> float:
         raise ValueError(f"Unknown puzzle size: {size}")
 
 
+class TimeoutException(Exception):
+    """Exception raised when timeout occurs"""
+    pass
+
+
+def timeout_handler(signum, frame):
+    """Signal handler for timeout"""
+    raise TimeoutException("Solver timeout")
+
+
 def run_single_experiment(
     puzzle_id: int,
     puzzle_path: str,
@@ -145,10 +155,40 @@ def run_single_experiment(
         # Create solver
         solver = get_solver(variant, clauses, num_vars)
 
+        # Set up signal-based timeout (Unix only, guaranteed to work)
+        signal.signal(signal.SIGALRM, timeout_handler)
+        signal.alarm(int(timeout) + 1)  # Set alarm for timeout + 1 second buffer
+
         # Solve with timeout
         start_time = time.time()
-        status, model = solver.solve()
-        wall_time = time.time() - start_time
+        try:
+            status, model = solver.solve()
+            wall_time = time.time() - start_time
+            signal.alarm(0)  # Cancel the alarm
+        except TimeoutException:
+            # Timeout occurred
+            wall_time = timeout
+            signal.alarm(0)  # Cancel the alarm
+            logging.warning(f"TIMEOUT: puzzle {puzzle_id}, variant {variant}, rep {repetition} (limit: {timeout}s)")
+
+            tracemalloc.stop()
+            return ExperimentResult(
+                puzzle_id=puzzle_id,
+                puzzle_size=puzzle_size,
+                expected_status=expected_status,
+                variant=variant,
+                repetition=repetition,
+                status="TIMEOUT",
+                wall_time=timeout,
+                decisions=0,
+                backtracks=0,
+                unit_propagations=0,
+                conflicts=0,
+                peak_memory_mb=0.0,
+                timeout_limit=timeout,
+                timed_out=True,
+                correct=False
+            )
 
         # Memory measurement
         current, peak = tracemalloc.get_traced_memory()
@@ -179,6 +219,7 @@ def run_single_experiment(
 
     except Exception as e:
         # Handle any errors
+        signal.alarm(0)  # Cancel alarm
         tracemalloc.stop()
         logging.error(f"Error in puzzle {puzzle_id}, variant {variant}, rep {repetition}: {str(e)}")
 
