@@ -7,7 +7,7 @@
 \caption{Base DPLL}
 \begin{algorithmic}[1]
 \Function{BaseDPLL}{$clauses$, $assignment$}
-    \State $clauses, assignment \gets$ \Call{UnitPropagate}{$clauses$, $assignment$}
+    \State $clauses, assignment \gets$ \textsc{UnitPropagate}($clauses$, $assignment$)
     \If{$clauses$ contains empty clause}
         \State \Return \textsc{Unsat}
     \EndIf
@@ -15,18 +15,21 @@
         \State \Return $\langle$\textsc{Sat}, $assignment$$\rangle$
     \EndIf
 
-    \State $\ell \gets$ \Call{FindPureLiteral}{$clauses$}
+    \State $\ell \gets$ \textsc{FindPureLiteral}($clauses$)
     \If{$\ell \neq \textsc{Null}$}
-        \State \Return \Call{BaseDPLL}{\Call{Simplify}{$clauses$, $\ell$}, $assignment \cup \{\ell\}$}
+        \State $clauses' \gets$ \textsc{Simplify}($clauses$, $\ell$)
+        \State \Return \textsc{BaseDPLL}($clauses'$, $assignment \cup \{\ell\}$)
     \EndIf
 
-    \State $v \gets$ \Call{ChooseVariable}{$clauses$} \Comment{DLIS heuristic}
-    \State $result \gets$ \Call{BaseDPLL}{\Call{Simplify}{$clauses$, $v$}, $assignment \cup \{v\}$}
+    \State $v \gets$ \textsc{ChooseVariable}($clauses$) \Comment{DLIS heuristic}
+    \State $clauses' \gets$ \textsc{Simplify}($clauses$, $v$)
+    \State $result \gets$ \textsc{BaseDPLL}($clauses'$, $assignment \cup \{v\}$)
     \If{$result \neq$ \textsc{Unsat}}
         \State \Return $result$
     \EndIf
 
-    \State \Return \Call{BaseDPLL}{\Call{Simplify}{$clauses$, $\neg v$}, $assignment \cup \{\neg v\}$}
+    \State $clauses'' \gets$ \textsc{Simplify}($clauses$, $\neg v$)
+    \State \Return \textsc{BaseDPLL}($clauses''$, $assignment \cup \{\neg v\}$)
 \EndFunction
 
 \State
@@ -36,7 +39,7 @@
         \For{each unit clause $c$ in $clauses$ where $|c| = 1$} \Comment{Naive: check all clauses}
             \State $\ell \gets c[0]$
             \State $assignment \gets assignment \cup \{\ell\}$
-            \State $clauses \gets$ \Call{Simplify}{$clauses$, $\ell$}
+            \State $clauses \gets$ \textsc{Simplify}($clauses$, $\ell$)
         \EndFor
     \Until{no unit clauses found}
     \State \Return $\langle clauses, assignment \rangle$
@@ -50,24 +53,24 @@
 \caption{Watched Literals DPLL}
 \begin{algorithmic}[1]
 \Function{WatchedDPLL}{$clauses$, $assignment$}
-    \State \Call{InitializeWatches}{$clauses$} \Comment{Each clause watches 2 literals}
-    \If{not \Call{UnitPropagateWatched}{$assignment$}}
+    \State \textsc{InitializeWatches}($clauses$) \Comment{Each clause watches 2 literals}
+    \If{not \textsc{UnitPropagateWatched}($assignment$)}
         \State \Return \textsc{Unsat}
     \EndIf
     \If{$|assignment| = num\_vars$}
         \State \Return $\langle$\textsc{Sat}, $assignment$$\rangle$
     \EndIf
 
-    \State $v \gets$ \Call{ChooseVariable}{$clauses$, $assignment$}
-    \State $state \gets$ \Call{SaveState}{$assignment$}
+    \State $v \gets$ \textsc{ChooseVariable}($clauses$, $assignment$)
+    \State $state \gets$ \textsc{SaveState}($assignment$)
     \State $assignment[v] \gets \textsc{True}$
-    \If{\Call{WatchedDPLL}{$clauses$, $assignment$} $\neq$ \textsc{Unsat}}
+    \If{\textsc{WatchedDPLL}($clauses$, $assignment$) $\neq$ \textsc{Unsat}}
         \State \Return $\langle$\textsc{Sat}, $assignment$$\rangle$
     \EndIf
 
-    \State \Call{RestoreState}{$state$}
+    \State \textsc{RestoreState}($state$)
     \State $assignment[v] \gets \textsc{False}$
-    \State \Return \Call{WatchedDPLL}{$clauses$, $assignment$}
+    \State \Return \textsc{WatchedDPLL}($clauses$, $assignment$)
 \EndFunction
 
 \State
@@ -75,12 +78,12 @@
 \Function{UnitPropagateWatched}{$assignment$}
     \State $Q \gets$ initial unit clauses
     \While{$Q \neq \emptyset$}
-        \State $\ell \gets Q.$\Call{dequeue}{}
+        \State $\ell \gets Q$.\textsc{dequeue}()
         \State $assignment[|\ell|] \gets (\ell > 0)$
         \For{each clause $c$ watching $\neg\ell$} \Comment{Only check watched clauses}
-            \If{\Call{IsUnit}{$c$}}
-                \State $Q.$\Call{enqueue}{$c$}
-            \ElsIf{\Call{IsConflicting}{$c$}}
+            \If{\textsc{IsUnit}($c$)}
+                \State $Q$.\textsc{enqueue}($c$)
+            \ElsIf{\textsc{IsConflicting}($c$)}
                 \State \Return \textsc{False}
             \EndIf
         \EndFor
@@ -97,28 +100,29 @@
 \begin{algorithmic}[1]
 \Function{PreprocessingDPLL}{$clauses$, $assignment$}
     \State \Comment{Preprocessing Phase}
-    \State $clauses, assignment \gets$ \Call{ExhaustiveUnitProp}{$clauses$, $assignment$}
+    \State $clauses, assignment \gets$ \textsc{ExhaustiveUnitProp}($clauses$, $assignment$)
     \If{$clauses = \textsc{Null}$}
         \State \Return \textsc{Unsat} \Comment{Conflict during preprocessing}
     \EndIf
 
-    \State $clauses \gets$ \Call{PureLiteralElim}{$clauses$, $assignment$}
-    \State $clauses \gets$ \Call{Subsumption}{$clauses$}
-    \State $clauses \gets$ \Call{BoundedVarElim}{$clauses$, $k_{max}$}
+    \State $clauses \gets$ \textsc{PureLiteralElim}($clauses$, $assignment$)
+    \State $clauses \gets$ \textsc{Subsumption}($clauses$)
+    \State $clauses \gets$ \textsc{BoundedVarElim}($clauses$, $k_{max}$)
 
     \If{$clauses = \emptyset$}
         \State \Return $\langle$\textsc{Sat}, $assignment$$\rangle$
     \EndIf
 
     \State \Comment{Search Phase (uses Base DPLL)}
-    \State \Return \Call{BaseDPLL}{$clauses$, $assignment$}
+    \State \Return \textsc{BaseDPLL}($clauses$, $assignment$)
 \EndFunction
 
 \State
 
 \Function{BoundedVarElim}{$clauses$, $k_{max}$}
     \For{each variable $v$ in $clauses$}
-        \State $C^+ \gets$ clauses containing $v$, \quad $C^- \gets$ clauses containing $\neg v$
+        \State $C^+ \gets$ clauses containing $v$
+        \State $C^- \gets$ clauses containing $\neg v$
         \If{$|C^+| \times |C^-| \leq k_{max}$} \Comment{Limit resolution cost}
             \State $R \gets \{(c^+ \setminus \{v\}) \cup (c^- \setminus \{\neg v\}) : c^+ \in C^+, c^- \in C^-\}$
             \State $clauses \gets (clauses \setminus (C^+ \cup C^-)) \cup R$
@@ -136,10 +140,10 @@
 \begin{algorithmic}[1]
 \Function{CombinedDPLL}{$clauses$, $assignment$}
     \State \Comment{Preprocessing Phase}
-    \State $clauses, assignment \gets$ \Call{ExhaustiveUnitProp}{$clauses$, $assignment$}
-    \State $clauses \gets$ \Call{PureLiteralElim}{$clauses$, $assignment$}
-    \State $clauses \gets$ \Call{Subsumption}{$clauses$}
-    \State $clauses \gets$ \Call{BoundedVarElim}{$clauses$, $k_{max}$}
+    \State $clauses, assignment \gets$ \textsc{ExhaustiveUnitProp}($clauses$, $assignment$)
+    \State $clauses \gets$ \textsc{PureLiteralElim}($clauses$, $assignment$)
+    \State $clauses \gets$ \textsc{Subsumption}($clauses$)
+    \State $clauses \gets$ \textsc{BoundedVarElim}($clauses$, $k_{max}$)
 
     \If{$clauses = \textsc{Null}$}
         \State \Return \textsc{Unsat}
@@ -149,31 +153,31 @@
     \EndIf
 
     \State \Comment{Search Phase (uses Watched Literals)}
-    \State \Call{InitializeWatches}{$clauses$}
-    \State \Return \Call{WatchedSearch}{$clauses$, $assignment$}
+    \State \textsc{InitializeWatches}($clauses$)
+    \State \Return \textsc{WatchedSearch}($clauses$, $assignment$)
 \EndFunction
 
 \State
 
 \Function{WatchedSearch}{$clauses$, $assignment$}
-    \If{not \Call{UnitPropagateWatched}{$assignment$}}
+    \If{not \textsc{UnitPropagateWatched}($assignment$)}
         \State \Return \textsc{Unsat}
     \EndIf
     \If{$|assignment| = num\_vars$}
         \State \Return $\langle$\textsc{Sat}, $assignment$$\rangle$
     \EndIf
 
-    \State $v \gets$ \Call{ChooseVariable}{$clauses$, $assignment$}
-    \State $polarity \gets$ \Call{CachedPhase}{$v$} \Comment{Phase saving}
-    \State $state \gets$ \Call{SaveState}{$assignment$}
+    \State $v \gets$ \textsc{ChooseVariable}($clauses$, $assignment$)
+    \State $polarity \gets$ \textsc{CachedPhase}($v$) \Comment{Phase saving}
+    \State $state \gets$ \textsc{SaveState}($assignment$)
     \State $assignment[v] \gets polarity$
-    \If{\Call{WatchedSearch}{$clauses$, $assignment$} $\neq$ \textsc{Unsat}}
+    \If{\textsc{WatchedSearch}($clauses$, $assignment$) $\neq$ \textsc{Unsat}}
         \State \Return $\langle$\textsc{Sat}, $assignment$$\rangle$
     \EndIf
 
-    \State \Call{RestoreState}{$state$}
+    \State \textsc{RestoreState}($state$)
     \State $assignment[v] \gets \neg polarity$
-    \State \Return \Call{WatchedSearch}{$clauses$, $assignment$}
+    \State \Return \textsc{WatchedSearch}($clauses$, $assignment$)
 \EndFunction
 \end{algorithmic}
 \end{algorithm}

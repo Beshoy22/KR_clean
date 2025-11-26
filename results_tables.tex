@@ -5,98 +5,102 @@
 % ==================== TABLE 1: PERFORMANCE SUMMARY ====================
 \begin{table}[h]
 \caption{Performance comparison of DPLL variants across puzzle sizes}\label{tab:performance}
-\begin{tabular*}{\textwidth}{@{\extracolsep\fill}lcccccc}
+\centering
+\begin{tabular}{lcccccc}
 \toprule
-& \multicolumn{2}{@{}c@{}}{9$\times$9 (20 puzzles)} & \multicolumn{2}{@{}c@{}}{16$\times$16 (10 puzzles)} & \multicolumn{2}{@{}c@{}}{25$\times$25 (4 puzzles)} \\
-\cmidrule{2-3}\cmidrule{4-5}\cmidrule{6-7}
-Variant & Median Time & Success & Median Time & Success & Median Time & Success \\
-& (seconds) & Rate (\%) & (seconds) & Rate (\%) & (seconds) & Rate (\%) \\
+& \multicolumn{2}{c}{9$\times$9} & \multicolumn{2}{c}{16$\times$16} & \multicolumn{2}{c}{25$\times$25} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+Variant & Time (s) & Success & Time (s) & Success & Time (s) & Success \\
 \midrule
-Base           & 12.73 & 100 & 600.00\footnotemark[1] & 40 & 690.79 & 50 \\
-Watched        & \textbf{0.12} & \textbf{100} & 600.00\footnotemark[1] & 40 & \textbf{451.55} & \textbf{50} \\
-Preprocessing  & 24.32 & 100 & 600.00\footnotemark[1] & 40 & 900.00\footnotemark[1] & 25 \\
-Combined       & 24.69 & 100 & 600.00\footnotemark[1] & 40 & 900.00\footnotemark[1] & 25 \\
+Base           & 12.73 & 100\% & 600.00$^*$ & 40\% & 690.79 & 50\% \\
+Watched        & \textbf{0.12} & \textbf{100\%} & 600.00$^*$ & 40\% & \textbf{451.55} & \textbf{50\%} \\
+Preprocessing  & 24.32 & 100\% & 600.00$^*$ & 40\% & 900.00$^*$ & 25\% \\
+Combined       & 24.69 & 100\% & 600.00$^*$ & 40\% & 900.00$^*$ & 25\% \\
 \bottomrule
-\end{tabular*}
-\footnotetext{Note: Timeouts set at 300s (9$\times$9), 600s (16$\times$16), and 900s (25$\times$25). Success rate indicates percentage of instances solved within timeout. Bold values indicate best performance for each puzzle size.}
-\footnotetext[1]{Timeout reached (median equals timeout limit).}
+\end{tabular}
+\par
+\small $^*$Timeout reached. Timeouts: 300s (9$\times$9), 600s (16$\times$16), 900s (25$\times$25).
 \end{table}
 
 
 % ==================== TABLE 2: STATISTICAL SIGNIFICANCE ====================
 \begin{table}[h]
-\caption{Statistical significance tests for pairwise comparisons}\label{tab:statistics}
-\begin{tabular*}{\textwidth}{@{\extracolsep\fill}lccc}
+\caption{Statistical significance tests (Wilcoxon $p$-values)}\label{tab:statistics}
+\centering
+\begin{tabular}{lccc}
 \toprule
-& \multicolumn{3}{@{}c@{}}{Wilcoxon Signed-Rank Test ($p$-values)\footnotemark[1]} \\
+& \multicolumn{3}{c}{$p$-values (Bonferroni: $\alpha = 0.0083$)} \\
 \cmidrule{2-4}
 Comparison & 9$\times$9 & 16$\times$16 & 25$\times$25 \\
 \midrule
-Base vs. Watched           & $<$0.001\footnotemark[2] & 0.89 & 0.31 \\
-Base vs. Preprocessing     & 0.002\footnotemark[2] & 0.95 & 0.18 \\
-Base vs. Combined          & 0.001\footnotemark[2] & 0.91 & 0.04\footnotemark[2] \\
-Watched vs. Preprocessing  & $<$0.001\footnotemark[2] & 0.87 & 0.22 \\
-Watched vs. Combined       & $<$0.001\footnotemark[2] & 0.93 & 0.03\footnotemark[2] \\
+Base vs. Watched           & $<$0.001$^{\dagger}$ & 0.89 & 0.31 \\
+Base vs. Preprocessing     & 0.002$^{\dagger}$ & 0.95 & 0.18 \\
+Base vs. Combined          & 0.001$^{\dagger}$ & 0.91 & 0.04$^{\dagger}$ \\
+Watched vs. Preprocessing  & $<$0.001$^{\dagger}$ & 0.87 & 0.22 \\
+Watched vs. Combined       & $<$0.001$^{\dagger}$ & 0.93 & 0.03$^{\dagger}$ \\
 Preprocessing vs. Combined & 0.73 & 0.96 & 0.84 \\
 \bottomrule
-\end{tabular*}
-\footnotetext{Note: $p$-values calculated using Wilcoxon signed-rank test with Bonferroni correction ($\alpha = 0.05/6 = 0.0083$). Tests compare median solve times across matched puzzle instances.}
-\footnotetext[1]{Two-tailed test for difference in solve time distributions.}
-\footnotetext[2]{Statistically significant at $\alpha = 0.0083$ (Bonferroni-corrected).}
+\end{tabular}
+\par
+\small $^{\dagger}$Significant at $\alpha = 0.0083$ (Bonferroni-corrected).
 \end{table}
 
 
 % ==================== TABLE 3: SPEEDUP FACTORS ====================
 \begin{table}[h]
 \caption{Speedup factors relative to Base DPLL}\label{tab:speedup}
-\begin{tabular*}{\textwidth}{@{\extracolsep\fill}lccc}
+\centering
+\begin{tabular}{lccc}
 \toprule
-& \multicolumn{3}{@{}c@{}}{Speedup (Base time / Variant time)} \\
+& \multicolumn{3}{c}{Speedup (Base time / Variant time)} \\
 \cmidrule{2-4}
 Variant & 9$\times$9 & 16$\times$16 & 25$\times$25 \\
 \midrule
-Watched        & 106.08$\times$ \textbf{(faster)} & 1.00$\times$ & 1.53$\times$ \\
-Preprocessing  & 0.52$\times$ \textbf{(slower)}   & 1.00$\times$ & 0.77$\times$ \\
-Combined       & 0.52$\times$ \textbf{(slower)}   & 1.00$\times$ & 0.77$\times$ \\
+Watched        & 106.08$\times$ & 1.00$\times$ & 1.53$\times$ \\
+Preprocessing  & 0.52$\times$ & 1.00$\times$ & 0.77$\times$ \\
+Combined       & 0.52$\times$ & 1.00$\times$ & 0.77$\times$ \\
 \bottomrule
-\end{tabular*}
-\footnotetext{Note: Speedup calculated as median(Base) / median(Variant). Values $>$1.0 indicate faster performance, values $<$1.0 indicate slower performance. For 16$\times$16, all variants timeout at the same rate, yielding speedup of 1.0.}
+\end{tabular}
+\par
+\small Values $>$1.0 indicate faster, $<$1.0 indicate slower performance.
 \end{table}
 
 
 % ==================== TABLE 4: SOLVER METRICS ====================
 \begin{table}[h]
-\caption{Internal solver metrics by variant (9$\times$9 puzzles only\footnotemark[1])}\label{tab:metrics}
-\begin{tabular*}{\textwidth}{@{\extracolsep\fill}lcccc}
+\caption{Internal solver metrics by variant (9$\times$9 puzzles)}\label{tab:metrics}
+\centering
+\begin{tabular}{lcccc}
 \toprule
-Variant & Decisions & Backtracks & Unit Propagations & Conflicts \\
-& (median) & (median) & (median) & (median) \\
+Variant & Decisions & Backtracks & Unit Prop. & Conflicts \\
 \midrule
 Base           & 0 & 0 & 24.5 & 0 \\
 Watched        & 0 & 0 & 24.5 & 0 \\
 Preprocessing  & 0 & 0 & 22.5 & 0 \\
 Combined       & 0 & 0 & 22.5 & 0 \\
 \bottomrule
-\end{tabular*}
-\footnotetext{Note: Metrics show median values across all 9$\times$9 puzzle instances. For 16$\times$16 and 25$\times$25, most runs timeout before collecting meaningful metrics.}
-\footnotetext[1]{All 9$\times$9 instances solved primarily through unit propagation without requiring branching decisions, indicating heavy constraint propagation from non-consecutive constraints.}
+\end{tabular}
+\par
+\small All values are medians. No branching required for 9$\times$9 puzzles.
 \end{table}
 
 
 % ==================== TABLE 5: DETAILED BREAKDOWN BY SAT/UNSAT ====================
 \begin{table}[h]
-\caption{Performance breakdown by satisfiability status (9$\times$9 puzzles)}\label{tab:satunsat}
-\begin{tabular*}{\textwidth}{@{\extracolsep\fill}lcccc}
+\caption{Performance breakdown by satisfiability (9$\times$9)}\label{tab:satunsat}
+\centering
+\begin{tabular}{lcccc}
 \toprule
-& \multicolumn{2}{@{}c@{}}{SAT Instances (10 puzzles)} & \multicolumn{2}{@{}c@{}}{UNSAT Instances (10 puzzles)} \\
-\cmidrule{2-3}\cmidrule{4-5}
-Variant & Median Time (s) & Mean Time (s) & Median Time (s) & Mean Time (s) \\
+& \multicolumn{2}{c}{SAT (10 puzzles)} & \multicolumn{2}{c}{UNSAT (10 puzzles)} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+Variant & Median (s) & Mean (s) & Median (s) & Mean (s) \\
 \midrule
 Base           & 14.36 & 9.99  & 0.36 & 6.05 \\
 Watched        & 0.30  & 0.31  & 0.03 & 0.20 \\
 Preprocessing  & 26.89 & 18.76 & 0.41 & 11.54 \\
 Combined       & 27.05 & 19.13 & 0.43 & 11.73 \\
 \bottomrule
-\end{tabular*}
-\footnotetext{Note: All variants solve UNSAT instances faster than SAT instances, as expected (UNSAT requires exhaustive search to prove unsatisfiability, but benefits from early conflict detection). Watched literals shows most consistent performance across both SAT and UNSAT.}
+\end{tabular}
+\par
+\small UNSAT instances solved faster due to early conflict detection.
 \end{table}
