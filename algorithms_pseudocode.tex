@@ -1,0 +1,304 @@
+\documentclass{article}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{amsmath}
+
+\begin{document}
+
+\section*{DPLL Algorithm Variants - Pseudocode}
+
+% ==================== BASE DPLL ====================
+\begin{algorithm}[H]
+\caption{BaseDPLL(clauses, assignment)}
+\begin{algorithmic}[1]
+
+\State \textit{clauses, assignment} $\gets$ \textsc{UnitPropagate}(\textit{clauses}, \textit{assignment})
+
+\If{\textit{clauses} contains empty clause}
+    \State \textsc{RecordConflict}()
+    \State \Return \textsc{Unsat}
+\EndIf
+
+\If{\textit{clauses} is empty}
+    \State \Return $\langle$\textsc{Sat}, \textit{assignment}$\rangle$
+\EndIf
+
+\State $\ell$ $\gets$ \textsc{FindPureLiteral}(\textit{clauses})
+\If{$\ell \neq$ \textsc{Null}}
+    \State \Return \textsc{BaseDPLL}(\textsc{Simplify}(\textit{clauses}, $\ell$), \textit{assignment} $\cup \{\ell\}$)
+\EndIf
+
+\State \textsc{RecordDecision}()
+\State $v$ $\gets$ \textsc{ChooseVariable}(\textit{clauses}) \Comment{DLIS heuristic}
+
+\State \textit{result} $\gets$ \textsc{BaseDPLL}(\textsc{Simplify}(\textit{clauses}, $v$), \textit{assignment} $\cup \{v\}$)
+\If{\textit{result} $\neq$ \textsc{Unsat}}
+    \State \Return \textit{result}
+\EndIf
+
+\State \textsc{RecordBacktrack}()
+\State \Return \textsc{BaseDPLL}(\textsc{Simplify}(\textit{clauses}, $\neg v$), \textit{assignment} $\cup \{\neg v\}$)
+
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{UnitPropagate(clauses, assignment) \textnormal{[BaseDPLL]}}
+\begin{algorithmic}[1]
+
+\Repeat
+    \State $\mathit{changed} \gets \text{False}$
+    \For{each clause $c$ in \textit{clauses} with $|c| = 1$}
+        \State $\ell \gets c[0]$ \Comment{Unit literal}
+        \If{$|\ell| \notin \textit{assignment}$}
+            \State \textit{assignment} $\gets$ \textit{assignment} $\cup \{\ell\}$
+            \State \textit{clauses} $\gets$ \textsc{Simplify}(\textit{clauses}, $\ell$)
+            \State \textsc{RecordUnitPropagation}()
+            \State $\mathit{changed} \gets \text{True}$
+        \EndIf
+    \EndFor
+\Until{$\mathit{changed} = \text{False}$}
+
+\State \Return $\langle$\textit{clauses}, \textit{assignment}$\rangle$
+
+\end{algorithmic}
+\end{algorithm}
+
+
+% ==================== WATCHED LITERALS DPLL ====================
+\begin{algorithm}[H]
+\caption{WatchedLiteralsDPLL(clauses, assignment)}
+\begin{algorithmic}[1]
+
+\State \textsc{InitializeWatches}(\textit{clauses}) \Comment{Watch 2 literals per clause}
+
+\If{not \textsc{UnitPropagateWatched}(\textit{assignment})}
+    \State \textsc{RecordConflict}()
+    \State \Return \textsc{Unsat}
+\EndIf
+
+\If{$|\textit{assignment}| = $ \textit{num\_vars}}
+    \State \Return $\langle$\textsc{Sat}, \textit{assignment}$\rangle$
+\EndIf
+
+\State \textsc{RecordDecision}()
+\State $v$ $\gets$ \textsc{ChooseVariable}(\textit{clauses}, \textit{assignment})
+
+\State \textit{state} $\gets$ \textsc{SaveState}(\textit{assignment})
+\State \textit{assignment}[$v$] $\gets$ \textsc{True}
+\If{\textsc{WatchedLiteralsDPLL}(\textit{clauses}, \textit{assignment}) $\neq$ \textsc{Unsat}}
+    \State \Return $\langle$\textsc{Sat}, \textit{assignment}$\rangle$
+\EndIf
+
+\State \textsc{RecordBacktrack}()
+\State \textsc{RestoreState}(\textit{state})
+\State \textit{assignment}[$v$] $\gets$ \textsc{False}
+\State \Return \textsc{WatchedLiteralsDPLL}(\textit{clauses}, \textit{assignment})
+
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{UnitPropagateWatched(assignment) \textnormal{[WatchedLiterals]}}
+\begin{algorithmic}[1]
+
+\State $Q \gets$ \textsc{FindInitialUnitClauses}()
+
+\While{$Q \neq \emptyset$}
+    \State $c_{\text{idx}} \gets Q.\textsc{dequeue}()$
+    \State $\ell \gets$ \textsc{GetUnitLiteral}($c_{\text{idx}}$)
+
+    \If{$|\ell|$ is already assigned inconsistently}
+        \State \Return \textsc{False} \Comment{Conflict}
+    \EndIf
+
+    \If{$|\ell| \notin \textit{assignment}$}
+        \State \textit{assignment}[$|\ell|$] $\gets$ ($\ell > 0$)
+        \State \textsc{RecordUnitPropagation}()
+
+        \For{each clause $c$ watching $\neg\ell$}
+            \If{\textsc{IsUnit}($c$)}
+                \State $Q.\textsc{enqueue}(c)$
+            \ElsIf{\textsc{IsConflicting}($c$)}
+                \State \Return \textsc{False}
+            \EndIf
+        \EndFor
+    \EndIf
+\EndWhile
+
+\State \Return \textsc{True}
+
+\end{algorithmic}
+\end{algorithm}
+
+
+% ==================== PREPROCESSING DPLL ====================
+\begin{algorithm}[H]
+\caption{PreprocessingDPLL(clauses, assignment)}
+\begin{algorithmic}[1]
+
+\State \textit{clauses} $\gets$ \textsc{Preprocess}(\textit{clauses}, \textit{assignment})
+
+\If{\textit{clauses} = \textsc{Null}}
+    \State \Return \textsc{Unsat} \Comment{Conflict in preprocessing}
+\EndIf
+
+\If{\textit{clauses} is empty}
+    \State \Return $\langle$\textsc{Sat}, \textit{assignment}$\rangle$
+\EndIf
+
+\State \Return \textsc{BaseDPLL}(\textit{clauses}, \textit{assignment})
+
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{Preprocess(clauses, assignment) \textnormal{[PreprocessingDPLL]}}
+\begin{algorithmic}[1]
+
+\State \textit{clauses, assignment} $\gets$ \textsc{ExhaustiveUnitPropagation}(\textit{clauses}, \textit{assignment})
+\If{\textit{clauses} = \textsc{Null}}
+    \State \Return \textsc{Null} \Comment{UNSAT}
+\EndIf
+
+\State \textit{clauses} $\gets$ \textsc{PureLiteralElimination}(\textit{clauses}, \textit{assignment})
+
+\State \textit{clauses} $\gets$ \textsc{SubsumptionElimination}(\textit{clauses})
+
+\State \textit{clauses} $\gets$ \textsc{BoundedVariableElimination}(\textit{clauses}, $k_{\max}$)
+
+\State \Return \textit{clauses}
+
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{BoundedVariableElimination(clauses, $k_{\max}$)}
+\begin{algorithmic}[1]
+
+\For{each variable $v$ in \textit{clauses}}
+    \State $C^+$ $\gets$ clauses containing $v$
+    \State $C^-$ $\gets$ clauses containing $\neg v$
+
+    \If{$|C^+| \times |C^-| \leq k_{\max}$}
+        \State $R \gets \emptyset$ \Comment{Resolvents}
+        \For{each $c^+ \in C^+$, $c^- \in C^-$}
+            \State $r \gets (c^+ \setminus \{v\}) \cup (c^- \setminus \{\neg v\})$
+            \If{$r$ is not a tautology}
+                \State $R \gets R \cup \{r\}$
+            \EndIf
+        \EndFor
+        \State \textit{clauses} $\gets$ (\textit{clauses} $\setminus$ ($C^+ \cup C^-$)) $\cup R$
+    \EndIf
+\EndFor
+
+\State \Return \textit{clauses}
+
+\end{algorithmic}
+\end{algorithm}
+
+
+% ==================== COMBINED DPLL ====================
+\begin{algorithm}[H]
+\caption{CombinedDPLL(clauses, assignment)}
+\begin{algorithmic}[1]
+
+\State \textit{clauses} $\gets$ \textsc{Preprocess}(\textit{clauses}, \textit{assignment}) \Comment{Full preprocessing}
+
+\If{\textit{clauses} = \textsc{Null}}
+    \State \Return \textsc{Unsat}
+\EndIf
+
+\If{\textit{clauses} is empty}
+    \State \Return $\langle$\textsc{Sat}, \textit{assignment}$\rangle$
+\EndIf
+
+\State \textsc{InitializeWatches}(\textit{clauses}) \Comment{Setup watched literals}
+
+\State \Return \textsc{WatchedSearch}(\textit{clauses}, \textit{assignment})
+
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{WatchedSearch(clauses, assignment) \textnormal{[CombinedDPLL]}}
+\begin{algorithmic}[1]
+
+\If{not \textsc{UnitPropagateWatched}(\textit{assignment})}
+    \State \textsc{RecordConflict}()
+    \State \Return \textsc{Unsat}
+\EndIf
+
+\If{$|\textit{assignment}| = $ \textit{num\_vars}}
+    \State \Return $\langle$\textsc{Sat}, \textit{assignment}$\rangle$
+\EndIf
+
+\State \textsc{RecordDecision}()
+\State $v$ $\gets$ \textsc{ChooseVariable}(\textit{clauses}, \textit{assignment})
+\State $\mathit{polarity} \gets$ \textsc{GetCachedPhase}($v$) \Comment{Phase saving}
+
+\State \textit{state} $\gets$ \textsc{SaveState}(\textit{assignment})
+\State \textit{assignment}[$v$] $\gets$ \textit{polarity}
+\If{\textsc{WatchedSearch}(\textit{clauses}, \textit{assignment}) $\neq$ \textsc{Unsat}}
+    \State \Return $\langle$\textsc{Sat}, \textit{assignment}$\rangle$
+\EndIf
+
+\State \textsc{RecordBacktrack}()
+\State \textsc{RestoreState}(\textit{state})
+\State \textit{assignment}[$v$] $\gets \neg$ \textit{polarity}
+\State \Return \textsc{WatchedSearch}(\textit{clauses}, \textit{assignment})
+
+\end{algorithmic}
+\end{algorithm}
+
+
+% ==================== HELPER FUNCTIONS ====================
+\section*{Helper Functions}
+
+\begin{algorithm}[H]
+\caption{Simplify(clauses, $\ell$)}
+\begin{algorithmic}[1]
+
+\State $C' \gets \emptyset$
+
+\For{each clause $c$ in \textit{clauses}}
+    \If{$\ell \in c$}
+        \State \textbf{continue} \Comment{Clause satisfied, skip it}
+    \EndIf
+    \State $c' \gets c \setminus \{\neg\ell\}$ \Comment{Remove negation of $\ell$}
+    \State $C' \gets C' \cup \{c'\}$
+\EndFor
+
+\State \Return $C'$
+
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{FindPureLiteral(clauses)}
+\begin{algorithmic}[1]
+
+\State $P^+ \gets \emptyset$, $P^- \gets \emptyset$
+
+\For{each clause $c$ in \textit{clauses}}
+    \For{each literal $\ell$ in $c$}
+        \If{$\ell > 0$}
+            \State $P^+ \gets P^+ \cup \{|\ell|\}$
+        \Else
+            \State $P^- \gets P^- \cup \{|\ell|\}$
+        \EndIf
+    \EndFor
+\EndFor
+
+\State $\mathit{pure} \gets (P^+ \setminus P^-) \cup (P^- \setminus P^+)$
+
+\If{$\mathit{pure} \neq \emptyset$}
+    \State \Return any element from $\mathit{pure}$
+\EndIf
+
+\State \Return \textsc{Null}
+
+\end{algorithmic}
+\end{algorithm}
+
+\end{document}
