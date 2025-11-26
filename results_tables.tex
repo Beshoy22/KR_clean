@@ -1,8 +1,6 @@
-\documentclass{article}
-\usepackage{booktabs}
-\usepackage{multirow}
-
-\begin{document}
+% Results Tables - DPLL Performance Comparison
+% Compatible with Springer Nature sn-jnl document class
+% Include in main document with: \input{results_tables.tex}
 
 % ==================== TABLE 1: PERFORMANCE SUMMARY ====================
 \begin{table}[h]
@@ -18,7 +16,7 @@ Base           & 12.73 & 100 & 600.00\footnotemark[1] & 40 & 690.79 & 50 \\
 Watched        & \textbf{0.12} & \textbf{100} & 600.00\footnotemark[1] & 40 & \textbf{451.55} & \textbf{50} \\
 Preprocessing  & 24.32 & 100 & 600.00\footnotemark[1] & 40 & 900.00\footnotemark[1] & 25 \\
 Combined       & 24.69 & 100 & 600.00\footnotemark[1] & 40 & 900.00\footnotemark[1] & 25 \\
-\botrule
+\bottomrule
 \end{tabular*}
 \footnotetext{Note: Timeouts set at 300s (9$\times$9), 600s (16$\times$16), and 900s (25$\times$25). Success rate indicates percentage of instances solved within timeout. Bold values indicate best performance for each puzzle size.}
 \footnotetext[1]{Timeout reached (median equals timeout limit).}
@@ -40,7 +38,7 @@ Base vs. Combined          & 0.001\footnotemark[2] & 0.91 & 0.04\footnotemark[2]
 Watched vs. Preprocessing  & $<$0.001\footnotemark[2] & 0.87 & 0.22 \\
 Watched vs. Combined       & $<$0.001\footnotemark[2] & 0.93 & 0.03\footnotemark[2] \\
 Preprocessing vs. Combined & 0.73 & 0.96 & 0.84 \\
-\botrule
+\bottomrule
 \end{tabular*}
 \footnotetext{Note: $p$-values calculated using Wilcoxon signed-rank test with Bonferroni correction ($\alpha = 0.05/6 = 0.0083$). Tests compare median solve times across matched puzzle instances.}
 \footnotetext[1]{Two-tailed test for difference in solve time distributions.}
@@ -60,7 +58,7 @@ Variant & 9$\times$9 & 16$\times$16 & 25$\times$25 \\
 Watched        & 106.08$\times$ \textbf{(faster)} & 1.00$\times$ & 1.53$\times$ \\
 Preprocessing  & 0.52$\times$ \textbf{(slower)}   & 1.00$\times$ & 0.77$\times$ \\
 Combined       & 0.52$\times$ \textbf{(slower)}   & 1.00$\times$ & 0.77$\times$ \\
-\botrule
+\bottomrule
 \end{tabular*}
 \footnotetext{Note: Speedup calculated as median(Base) / median(Variant). Values $>$1.0 indicate faster performance, values $<$1.0 indicate slower performance. For 16$\times$16, all variants timeout at the same rate, yielding speedup of 1.0.}
 \end{table}
@@ -78,7 +76,7 @@ Base           & 0 & 0 & 24.5 & 0 \\
 Watched        & 0 & 0 & 24.5 & 0 \\
 Preprocessing  & 0 & 0 & 22.5 & 0 \\
 Combined       & 0 & 0 & 22.5 & 0 \\
-\botrule
+\bottomrule
 \end{tabular*}
 \footnotetext{Note: Metrics show median values across all 9$\times$9 puzzle instances. For 16$\times$16 and 25$\times$25, most runs timeout before collecting meaningful metrics.}
 \footnotetext[1]{All 9$\times$9 instances solved primarily through unit propagation without requiring branching decisions, indicating heavy constraint propagation from non-consecutive constraints.}
@@ -98,10 +96,7 @@ Base           & 14.36 & 9.99  & 0.36 & 6.05 \\
 Watched        & 0.30  & 0.31  & 0.03 & 0.20 \\
 Preprocessing  & 26.89 & 18.76 & 0.41 & 11.54 \\
 Combined       & 27.05 & 19.13 & 0.43 & 11.73 \\
-\botrule
+\bottomrule
 \end{tabular*}
 \footnotetext{Note: All variants solve UNSAT instances faster than SAT instances, as expected (UNSAT requires exhaustive search to prove unsatisfiability, but benefits from early conflict detection). Watched literals shows most consistent performance across both SAT and UNSAT.}
 \end{table}
-
-
-\end{document}
