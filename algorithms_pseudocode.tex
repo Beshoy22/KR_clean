@@ -168,15 +168,14 @@
     \EndIf
 
     \State $v \gets$ \textsc{ChooseVariable}($clauses$, $assignment$)
-    \State $polarity \gets$ \textsc{CachedPhase}($v$) \Comment{Phase saving}
     \State $state \gets$ \textsc{SaveState}($assignment$)
-    \State $assignment[v] \gets polarity$
+    \State $assignment[v] \gets \textsc{True}$
     \If{\textsc{WatchedSearch}($clauses$, $assignment$) $\neq$ \textsc{Unsat}}
         \State \Return $\langle$\textsc{Sat}, $assignment$$\rangle$
     \EndIf
 
     \State \textsc{RestoreState}($state$)
-    \State $assignment[v] \gets \neg polarity$
+    \State $assignment[v] \gets \textsc{False}$
     \State \Return \textsc{WatchedSearch}($clauses$, $assignment$)
 \EndFunction
 \end{algorithmic}
